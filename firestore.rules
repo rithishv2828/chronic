@@ -1,0 +1,101 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: users
+    // Document ID: {uid}
+    // Fields: uid, displayName, diagnosis, age, weight, targetBPSystolic, targetBPDiastolic, targetGlucose, createdAt
+    //
+    // Collection: vitals
+    // Fields: userId, timestamp, type, systolic, diastolic, glucose, weight, notes
+    //
+    // Collection: medications
+    // Fields: userId, timestamp, medicationName, dosage, taken
+    //
+    // Collection: meals
+    // Fields: userId, timestamp, mealType, description, calories, carbs, protein, fat
+    //
+    // Collection: activities
+    // Fields: userId, timestamp, activityType, durationMinutes, intensity
+    //
+    // ===============================================================
+
+    // Helper Functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isDocOwner() {
+      return isAuthenticated() && request.auth.uid == resource.data.userId;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() &&
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+          (request.auth.token.email == "rithishveerakumar14@gmail.com" && request.auth.token.email_verified == true));
+    }
+
+    // Validation Functions
+    function isValidUser(data) {
+      return data.keys().hasAll(['uid', 'diagnosis', 'createdAt']) &&
+             data.uid is string &&
+             data.diagnosis in ['Type 2 Diabetes', 'Hypertension', 'Both'];
+    }
+
+    function isValidVital(data) {
+      return data.keys().hasAll(['userId', 'timestamp', 'type']) &&
+             data.userId == request.auth.uid &&
+             data.type in ['blood_pressure', 'glucose', 'weight'];
+    }
+
+    // Rules
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow create: if isOwner(userId) && isValidUser(request.resource.data);
+      allow update: if isOwner(userId) && isValidUser(request.resource.data);
+      allow delete: if isAdmin();
+    }
+
+    match /vitals/{docId} {
+      allow read: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid && isValidVital(request.resource.data);
+      allow update: if isDocOwner() && isValidVital(request.resource.data);
+      allow delete: if isDocOwner() || isAdmin();
+    }
+
+    match /medications/{docId} {
+      allow read: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+      allow update: if isDocOwner();
+      allow delete: if isDocOwner() || isAdmin();
+    }
+
+    match /meals/{docId} {
+      allow read: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+      allow update: if isDocOwner();
+      allow delete: if isDocOwner() || isAdmin();
+    }
+
+    match /activities/{docId} {
+      allow read: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+      allow update: if isDocOwner();
+      allow delete: if isDocOwner() || isAdmin();
+    }
+
+    match /appointments/{docId} {
+      allow read: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+      allow update: if isDocOwner();
+      allow delete: if isDocOwner() || isAdmin();
+    }
+  }
+}

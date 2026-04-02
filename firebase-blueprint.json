@@ -1,0 +1,120 @@
+{
+  "entities": {
+    "userProfile": {
+      "title": "User Profile",
+      "description": "Stores patient-specific health targets and diagnosis information.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "displayName": { "type": "string" },
+        "diagnosis": { "type": "string", "enum": ["Type 2 Diabetes", "Hypertension", "Both"] },
+        "age": { "type": "number" },
+        "weight": { "type": "number" },
+        "targetBPSystolic": { "type": "number" },
+        "targetBPDiastolic": { "type": "number" },
+        "targetGlucose": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "diagnosis"]
+    },
+    "vitalLog": {
+      "title": "Vital Log",
+      "description": "Daily logs for blood pressure, glucose, and weight.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "type": { "type": "string", "enum": ["blood_pressure", "glucose", "weight"] },
+        "systolic": { "type": "number" },
+        "diastolic": { "type": "number" },
+        "glucose": { "type": "number" },
+        "weight": { "type": "number" },
+        "notes": { "type": "string" }
+      },
+      "required": ["userId", "timestamp", "type"]
+    },
+    "medicationLog": {
+      "title": "Medication Log",
+      "description": "Logs for medication adherence.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "medicationName": { "type": "string" },
+        "dosage": { "type": "string" },
+        "taken": { "type": "boolean" }
+      },
+      "required": ["userId", "timestamp", "medicationName", "taken"]
+    },
+    "mealLog": {
+      "title": "Meal Log",
+      "description": "Daily food intake tracking.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "mealType": { "type": "string", "enum": ["breakfast", "lunch", "dinner", "snack"] },
+        "description": { "type": "string" },
+        "calories": { "type": "number" },
+        "carbs": { "type": "number" },
+        "protein": { "type": "number" },
+        "fat": { "type": "number" }
+      },
+      "required": ["userId", "timestamp", "mealType", "description"]
+    },
+    "activityLog": {
+      "title": "Activity Log",
+      "description": "Physical activity tracking.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "activityType": { "type": "string" },
+        "durationMinutes": { "type": "number" },
+        "intensity": { "type": "string", "enum": ["low", "medium", "high"] }
+      },
+      "required": ["userId", "timestamp", "activityType", "durationMinutes"]
+    },
+    "appointment": {
+      "title": "Appointment",
+      "description": "Doctor appointments.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "doctorName": { "type": "string" },
+        "specialty": { "type": "string" },
+        "date": { "type": "string", "format": "date" },
+        "time": { "type": "string" },
+        "location": { "type": "string" },
+        "status": { "type": "string", "enum": ["upcoming", "completed", "cancelled"] }
+      },
+      "required": ["userId", "doctorName", "date", "time", "status"]
+    }
+  },
+  "firestore": {
+    "/users/{uid}": {
+      "schema": "userProfile",
+      "description": "Patient profiles."
+    },
+    "/vitals": {
+      "schema": "vitalLog",
+      "description": "Collection of vital logs."
+    },
+    "/medications": {
+      "schema": "medicationLog",
+      "description": "Collection of medication logs."
+    },
+    "/meals": {
+      "schema": "mealLog",
+      "description": "Collection of meal logs."
+    },
+    "/activities": {
+      "schema": "activityLog",
+      "description": "Collection of activity logs."
+    },
+    "/appointments": {
+      "schema": "appointment",
+      "description": "Collection of appointments."
+    }
+  }
+}
