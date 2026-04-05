@@ -6,7 +6,7 @@ import { Calendar, Clock, MapPin, User, Plus, Trash2, CheckCircle2, Loader2, X }
 import { motion, AnimatePresence } from 'motion/react';
 import { format } from 'date-fns';
 
-export default function Appointments() {
+export default function Appointments({ setActiveTab }: { setActiveTab?: (tab: string) => void }) {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -14,7 +14,10 @@ export default function Appointments() {
 
   useEffect(() => {
     const user = auth.currentUser;
-    if (!user) return;
+    if (!user) {
+      setLoading(false);
+      return;
+    }
 
     const q = query(
       collection(db, 'appointments'),
@@ -68,16 +71,38 @@ export default function Appointments() {
     }
   };
 
+  if (!auth.currentUser) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 text-center space-y-6">
+        <div className="w-20 h-20 bg-blue-50 dark:bg-blue-900/20 rounded-full flex items-center justify-center">
+          <Calendar className="w-10 h-10 text-blue-600 dark:text-blue-400" />
+        </div>
+        <div>
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Appointments & Scheduling</h2>
+          <p className="text-slate-500 dark:text-slate-400 max-w-md mx-auto">
+            Please sign in to manage your medical appointments and health checkups.
+          </p>
+        </div>
+        <button
+          onClick={() => setActiveTab?.('settings')}
+          className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-xl shadow-lg transition-all"
+        >
+          Go to Settings to Sign In
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-slate-900">My Appointments</h2>
-          <p className="text-slate-500">Manage your upcoming doctor visits and health checkups.</p>
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-white transition-colors">My Appointments</h2>
+          <p className="text-slate-500 dark:text-slate-400 transition-colors">Manage your upcoming doctor visits and health checkups.</p>
         </div>
         <button
           onClick={() => setIsModalOpen(true)}
-          className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-xl transition-all flex items-center gap-2 shadow-md shadow-blue-200"
+          className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white font-semibold py-2 px-6 rounded-xl transition-all flex items-center gap-2 shadow-md shadow-blue-200 dark:shadow-none"
         >
           <Plus className="w-5 h-5" />
           Book Appointment
@@ -86,16 +111,16 @@ export default function Appointments() {
 
       {loading ? (
         <div className="flex flex-col items-center justify-center py-20 gap-4">
-          <Loader2 className="w-10 h-10 animate-spin text-blue-600" />
-          <p className="text-slate-500 font-medium">Loading your appointments...</p>
+          <Loader2 className="w-10 h-10 animate-spin text-blue-600 dark:text-blue-400" />
+          <p className="text-slate-500 dark:text-slate-400 font-medium">Loading your appointments...</p>
         </div>
       ) : appointments.length === 0 ? (
-        <div className="bg-white p-12 rounded-2xl shadow-sm border border-slate-100 text-center">
-          <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center mx-auto mb-6">
-            <Calendar className="w-8 h-8 text-slate-300" />
+        <div className="bg-white dark:bg-slate-900 p-12 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 text-center transition-colors">
+          <div className="w-16 h-16 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center mx-auto mb-6">
+            <Calendar className="w-8 h-8 text-slate-300 dark:text-slate-600" />
           </div>
-          <h3 className="text-xl font-bold text-slate-900 mb-2">No Appointments Found</h3>
-          <p className="text-slate-500 mb-8 max-w-md mx-auto">
+          <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">No Appointments Found</h3>
+          <p className="text-slate-500 dark:text-slate-400 mb-8 max-w-md mx-auto">
             You don't have any upcoming appointments scheduled. Click the button above to book one.
           </p>
         </div>
@@ -109,40 +134,40 @@ export default function Appointments() {
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ delay: i * 0.05 }}
-                className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-all group relative"
+                className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 hover:shadow-md transition-all group relative"
               >
                 <div className="flex items-start justify-between mb-4">
-                  <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center group-hover:bg-blue-600 transition-colors">
-                    <Calendar className="w-6 h-6 text-blue-600 group-hover:text-white transition-colors" />
+                  <div className="w-12 h-12 bg-blue-50 dark:bg-blue-900/20 rounded-xl flex items-center justify-center group-hover:bg-blue-600 dark:group-hover:bg-blue-500 transition-colors">
+                    <Calendar className="w-6 h-6 text-blue-600 dark:text-blue-400 group-hover:text-white transition-colors" />
                   </div>
                   <button 
                     onClick={() => appt.id && handleDelete(appt.id)}
-                    className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+                    className="p-2 text-slate-300 dark:text-slate-600 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
-                <h3 className="font-bold text-slate-900 mb-1">{appt.doctorName}</h3>
-                <p className="text-xs font-semibold text-blue-600 bg-blue-50 px-2 py-1 rounded-md inline-block mb-4">{appt.specialty}</p>
+                <h3 className="font-bold text-slate-900 dark:text-white mb-1">{appt.doctorName}</h3>
+                <p className="text-xs font-semibold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 px-2 py-1 rounded-md inline-block mb-4">{appt.specialty}</p>
                 
                 <div className="space-y-3">
-                  <div className="flex items-center gap-3 text-sm text-slate-600">
-                    <Calendar className="w-4 h-4 text-slate-400" />
+                  <div className="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-400">
+                    <Calendar className="w-4 h-4 text-slate-400 dark:text-slate-500" />
                     {format(new Date(appt.date), 'EEEE, MMM d, yyyy')}
                   </div>
-                  <div className="flex items-center gap-3 text-sm text-slate-600">
-                    <Clock className="w-4 h-4 text-slate-400" />
+                  <div className="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-400">
+                    <Clock className="w-4 h-4 text-slate-400 dark:text-slate-500" />
                     {appt.time}
                   </div>
-                  <div className="flex items-center gap-3 text-sm text-slate-600">
-                    <MapPin className="w-4 h-4 text-slate-400" />
+                  <div className="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-400">
+                    <MapPin className="w-4 h-4 text-slate-400 dark:text-slate-500" />
                     {appt.location}
                   </div>
                 </div>
 
                 {appt.notes && (
-                  <div className="mt-4 pt-4 border-t border-slate-50">
-                    <p className="text-xs text-slate-400 italic">Notes: {appt.notes}</p>
+                  <div className="mt-4 pt-4 border-t border-slate-50 dark:border-slate-800">
+                    <p className="text-xs text-slate-400 dark:text-slate-500 italic">Notes: {appt.notes}</p>
                   </div>
                 )}
               </motion.div>
@@ -159,46 +184,46 @@ export default function Appointments() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-8 relative"
+              className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-lg p-8 relative border border-slate-100 dark:border-slate-800"
             >
               <button 
                 onClick={() => setIsModalOpen(false)}
-                className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-all"
+                className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all"
               >
                 <X className="w-5 h-5" />
               </button>
-              <h2 className="text-2xl font-bold text-slate-900 mb-6">Book New Appointment</h2>
+              <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">Book New Appointment</h2>
               
               <form onSubmit={handleAddAppointment} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Doctor Name</label>
-                  <input type="text" name="doctorName" required className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="e.g. Dr. Smith" />
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Doctor Name</label>
+                  <input type="text" name="doctorName" required className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none text-slate-900 dark:text-white" placeholder="e.g. Dr. Smith" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Specialty</label>
-                  <input type="text" name="specialty" required className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="e.g. Endocrinologist" />
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Specialty</label>
+                  <input type="text" name="specialty" required className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none text-slate-900 dark:text-white" placeholder="e.g. Endocrinologist" />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">Date</label>
-                    <input type="date" name="date" required className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none" />
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Date</label>
+                    <input type="date" name="date" required className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none text-slate-900 dark:text-white" />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">Time</label>
-                    <input type="time" name="time" required className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none" />
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Time</label>
+                    <input type="time" name="time" required className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none text-slate-900 dark:text-white" />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Location / Clinic</label>
-                  <input type="text" name="location" required className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="e.g. City General Hospital" />
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Location / Clinic</label>
+                  <input type="text" name="location" required className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none text-slate-900 dark:text-white" placeholder="e.g. City General Hospital" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Notes (Optional)</label>
-                  <textarea name="notes" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none min-h-[80px]" placeholder="Reason for visit..." />
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Notes (Optional)</label>
+                  <textarea name="notes" className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none min-h-[80px] text-slate-900 dark:text-white" placeholder="Reason for visit..." />
                 </div>
                 <button
                   disabled={isSubmitting}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-xl transition-all disabled:opacity-50 mt-4 flex items-center justify-center gap-2"
+                  className="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white font-semibold py-3 px-6 rounded-xl transition-all disabled:opacity-50 mt-4 flex items-center justify-center gap-2"
                 >
                   {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <CheckCircle2 className="w-5 h-5" />}
                   {isSubmitting ? 'Booking...' : 'Confirm Appointment'}

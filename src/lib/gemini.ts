@@ -1,7 +1,7 @@
 import { GoogleGenAI } from "@google/genai";
 import { UserProfile, VitalLog, MedicationLog, MealLog, ActivityLog } from "../types";
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
+const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY || process.env.GEMINI_API_KEY! });
 
 export async function generateHealthNudge(
   profile: UserProfile,
@@ -44,5 +44,30 @@ export async function generateHealthNudge(
       message: "Keep up the great work monitoring your health! Consistency is key.",
       category: "lifestyle"
     };
+  }
+}
+
+export async function estimateMealNutrition(description: string) {
+  const prompt = `
+    Estimate the calories and carbohydrates (in grams) for the following meal description:
+    "${description}"
+    
+    Format: JSON with "calories" (number) and "carbs" (number) fields. 
+    If you cannot estimate, provide reasonable defaults (e.g., 0).
+  `;
+
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-3-flash-preview",
+      contents: prompt,
+      config: {
+        responseMimeType: "application/json",
+      },
+    });
+
+    return JSON.parse(response.text || '{"calories": 0, "carbs": 0}');
+  } catch (error) {
+    console.error("Error estimating meal nutrition:", error);
+    return { calories: 0, carbs: 0 };
   }
 }

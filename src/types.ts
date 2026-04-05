@@ -35,6 +35,18 @@ export interface MedicationLog {
   taken: boolean;
 }
 
+export interface MedicationSchedule {
+  id?: string;
+  userId: string;
+  medicationName: string;
+  dosage: string;
+  reminderTime: string; // HH:mm
+  days: string[]; // ['Mon', 'Tue', ...]
+  isActive: boolean;
+  lastNotified?: string; // ISO string
+  snoozedUntil?: string; // ISO string
+}
+
 export interface MealLog {
   id?: string;
   userId: string;

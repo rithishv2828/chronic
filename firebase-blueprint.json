@@ -46,6 +46,22 @@
       },
       "required": ["userId", "timestamp", "medicationName", "taken"]
     },
+    "medicationSchedule": {
+      "title": "Medication Schedule",
+      "description": "Scheduled reminders for medications.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "medicationName": { "type": "string" },
+        "dosage": { "type": "string" },
+        "reminderTime": { "type": "string" },
+        "days": { "type": "array", "items": { "type": "string" } },
+        "isActive": { "type": "boolean" },
+        "lastNotified": { "type": "string", "format": "date-time" },
+        "snoozedUntil": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "medicationName", "reminderTime", "isActive"]
+    },
     "mealLog": {
       "title": "Meal Log",
       "description": "Daily food intake tracking.",
@@ -103,6 +119,10 @@
     "/medications": {
       "schema": "medicationLog",
       "description": "Collection of medication logs."
+    },
+    "/medicationSchedules": {
+      "schema": "medicationSchedule",
+      "description": "Collection of medication schedules."
     },
     "/meals": {
       "schema": "mealLog",

@@ -1,5 +1,5 @@
 {
-  "name": "Vitality: Chronic Disease Self-Management Dashboard",
+  "name": "MECURA AI",
   "description": "A personal health dashboard for patients with Type 2 diabetes or hypertension to log daily vitals, medications, meals, and physical activity with trend visualization and personalized health nudges.",
-  "requestFramePermissions": ["geolocation"]
+  "requestFramePermissions": ["geolocation", "microphone"]
 }
