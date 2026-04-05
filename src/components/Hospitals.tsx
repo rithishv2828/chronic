@@ -3,7 +3,7 @@ import { GoogleGenAI } from "@google/genai";
 import { MapPin, Navigation, Search, Loader2, Hospital, ExternalLink, Globe } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
-const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY || process.env.GEMINI_API_KEY! });
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
 
 interface HospitalInfo {
   name: string;

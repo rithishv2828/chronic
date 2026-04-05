@@ -5,7 +5,7 @@ import { Send, Bot, User, Loader2, Sparkles, Mic, MicOff, Volume2, Globe, AlertC
 import { motion, AnimatePresence } from 'motion/react';
 import ReactMarkdown from 'react-markdown';
 
-const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY || process.env.GEMINI_API_KEY! });
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
 
 const LANGUAGES = [
   { code: 'en-US', name: 'English' },
